@@ -17,7 +17,7 @@ def get_intervention():
         with col3:
             date_debut = st.date_input("📆 Date de début", value=datetime.date.today(), key="date_debut_intervention")
         with col4:
-            date_fin = st.date_input("📆 Date de fin", value=date_debut, key="date_fin_intervention")
+            date_fin = st.date_input("📆 Date de fin", value=datetime.date.today(), key="date_fin_intervention")
     
     if date_fin < date_debut:
         st.error("⚠️ La date de fin ne peut pas être avant la date de début.")

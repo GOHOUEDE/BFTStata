@@ -64,7 +64,7 @@ def get_filtered_data_ace_sfi(institution, username, ace_sfi, date_debut, date_f
     cursor.close()
     conn.close()
     
-    return pd.DataFrame(results, columns=["Username", "Nom & Prénom", "Collecte", "Commission", "Date", "Institution", "ACE SFI"])
+    return pd.DataFrame(results, columns=["username", "nom_prenom", "collecte", "commission", "date", "institution", "ace_sfi"])
 
 # Fonction principale pour afficher l'interface de filtrage
 def afficher_filtre_ace_sfi():
@@ -102,4 +102,4 @@ def afficher_filtre_ace_sfi():
             st.warning("Aucune donnée ne correspond aux critères sélectionnés.")
 
 # Appel de la fonction pour lancer l'interface
-afficher_filtre_ace_sfi()
+# afficher_filtre_ace_sfi()
