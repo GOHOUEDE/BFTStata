@@ -71,36 +71,3 @@ def get_filtered_data_collecte(institution, agence, date_debut, date_fin, data_t
 
     return pd.DataFrame(results, columns=["Institution", "Agence", "Collectes", "Commissions", "Date"])
 
-# Interface Streamlit
-st.title("📊 Filtrer les collectes et commissions")
-
-# Conteneur pour le filtre
-with st.container():
-    col1, col2, col3, col4, col5 = st.columns(5)
-    
-    with col1:
-        institutions = get_com_collecte()
-        institution = st.selectbox("🏦 Institution", institutions, key="institution_select_commission")
-    with col2:
-        agences = get_agences_com_collecte(institution)
-        agence = st.selectbox("🏢 Agences", agences, key="agence_select_commission")
-    with col3:
-        date_debut = st.date_input("📆 Date de début", value=datetime.date.today(), key="date_debut_input_commission")
-    with col4:
-        date_fin = st.date_input("📆 Date de fin", value=datetime.date.today(), key="date_fin_input_commission")
-    with col5:
-        data_type = st.selectbox("📊 Type de Donnée", ["Commission", "Collecte"], key="data_type_select_commission")
-    
-    # Vérification de la cohérence des dates
-    if date_fin < date_debut:
-        st.error("⚠️ La date de fin ne peut pas être avant la date de début.")
-    
-    # Bouton pour lancer la recherche
-    if st.button("🔍 Filtrer les données", key="bouton_filtrer_commission"):
-        filtered_data = get_filtered_data_collecte(institution, agence, date_debut, date_fin, data_type)
-        
-        if not filtered_data.empty:
-            st.write("### 📋 Résultats filtrés :")
-            st.dataframe(filtered_data)
-        else:
-            st.warning("Aucune donnée ne correspond aux critères sélectionnés.")

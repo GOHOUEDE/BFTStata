@@ -51,6 +51,7 @@ def afficher_filtre_collecte_commission():
                 # Si votre requête SQL renvoie "commission" en minuscules, vous pouvez renommer la colonne :
                 if "commission" in filtered_data.columns and "Commissions" not in filtered_data.columns:
                     filtered_data.rename(columns={"commission": "Commissions"}, inplace=True)
+                
                 # Affichage des graphiques
                 nuages(filtered_data["Date"], filtered_data["Commissions"])
                 nua(filtered_data)

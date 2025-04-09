@@ -16,7 +16,43 @@ def get_institutions():
     cursor.close()
     conn.close()
 
-    return ["Toutes"] + [row[0] for row in results]
+    return [row[0] for row in results]
+# Fonction pour récupérer les institutions disponibles
+def get_type_intervention(institution,agence):
+    conn = connect_db()
+    if conn is None:
+        return ["Toutes"]
+    
+    cursor = conn.cursor()
+    
+    if agence == "Toutes":
+        cursor.execute("SELECT DISTINCT problemes FROM interventions")
+    else:
+        cursor.execute("SELECT DISTINCT problemes FROM interventions WHERE institution = %s AND agence = %s", (institution,agence,))
+    
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return  [row[0] for row in results]
+
+def get_etat_intervention(institution,agence,intervention):
+    conn = connect_db()
+    if conn is None:
+        return ["Toutes"]
+    
+    cursor = conn.cursor()
+    
+    if agence == "Toutes":
+        cursor.execute("SELECT DISTINCT etat_intervention FROM interventions")
+    else:
+        cursor.execute("SELECT DISTINCT etat_intervention FROM interventions WHERE institution = %s AND agence = %s AND etat_intervention = %s", (institution,agence,intervention,))
+    
+    results = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    return  [row[0] for row in results]
 
 # Fonction pour récupérer les agences selon l'institution sélectionnée
 def get_agences(institution):
@@ -35,10 +71,10 @@ def get_agences(institution):
     cursor.close()
     conn.close()
 
-    return ["Toutes"] + [row[0] for row in results]
+    return  [row[0] for row in results]
 
 # Fonction pour récupérer les données filtrées
-def get_filtered_data(institution, agence, date_debut, date_fin):
+def get_filtered_data(institution, agence, intervention, etat, date_debut, date_fin):
     conn = connect_db()
     if conn is None:
         return pd.DataFrame()
@@ -48,7 +84,7 @@ def get_filtered_data(institution, agence, date_debut, date_fin):
     query = """
         SELECT institution, agence, intervention_date, etat_intervention, problemes 
         FROM interventions 
-        WHERE DATE(intervention_date) BETWEEN %s AND %s
+        WHERE DATE(intervention_date) BETWEEN %s AND %s 
     """
     params = [date_debut.strftime('%Y-%m-%d'), date_fin.strftime('%Y-%m-%d')]  # Conversion des dates
 
@@ -59,45 +95,18 @@ def get_filtered_data(institution, agence, date_debut, date_fin):
     if agence != "Toutes":
         query += " AND agence = %s"
         params.append(agence)
+        
+    if intervention != "Tous":
+        query += " AND problemes = %s"
+        params.append(intervention)
+        
+    if etat != "Toutes":
+        query += " AND etat_intervention = %s"
+        params.append(etat)    
     
     cursor.execute(query, tuple(params))
     results = cursor.fetchall()
     cursor.close()
     conn.close()
 
-    return pd.DataFrame(results, columns=["Institution", "Agence", "Date Intervention", "État", "Problèmes"])
-
-# Interface Streamlit
-st.title("📊 Filtrer les interventions")
-
-# Conteneur pour le filtre
-with st.container():
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        institutions = get_institutions()
-        institution = st.selectbox("🏦 Institution", institutions, key="institution_select")
-
-    with col2:
-        agences = get_agences(institution)
-        agence = st.selectbox("🏢 Agences", agences, key="agence_select")
-
-    with col3:
-        date_debut = st.date_input("📆 Date de début", value=datetime.date.today(), key="date_debut")
-
-    with col4:
-        date_fin = st.date_input("📆 Date de fin", value=datetime.date.today(), key="date_fin")
-
-    # Vérification de la cohérence des dates
-    if date_fin < date_debut:
-        st.error("⚠️ La date de fin ne peut pas être avant la date de début.")
-
-# Bouton pour lancer la recherche
-if st.button("🔍 Filtrer les données"):
-    filtered_data = get_filtered_data(institution, agence, date_debut, date_fin)
-    
-    if not filtered_data.empty:
-        st.write("### 📋 Résultats filtrés :")
-        st.dataframe(filtered_data)
-    else:
-        st.warning("Aucune donnée ne correspond aux critères sélectionnés.")
+    return pd.DataFrame(results, columns=["Institution", "Agence", "Date", "État", "Interventions"])
