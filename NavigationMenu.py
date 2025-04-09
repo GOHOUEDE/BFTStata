@@ -12,7 +12,6 @@ from menu.com_collecte import afficher_filtre_collecte_commission
 from menu.suivi_ace_sfi import get_suivi_ace_sfi
 from graphiques.nuages import nuages
 
-
 # Sidebar - Image et menu de navigation
 with st.sidebar:
     image_path = "images/logo.png"
@@ -34,7 +33,8 @@ with st.sidebar:
         }
     </style>
     """, unsafe_allow_html=True)
-
+    
+    # Création du menu avec une valeur par défaut (ici "Collectes & Commissions")
     selected = option_menu(
         "",
         ["Home", "Collectes & Commissions", "Suivi et analyse des acteurs",  
@@ -56,16 +56,16 @@ with st.sidebar:
         }
     )
 
-# --- Charger les données ---
+# Gestion des sections avec une structure if/elif/else pour n'afficher qu'une seule section à la fois
 if selected == "Charger les données":
-    # Interface utilisateur pour charger les données
+    # Section pour charger les données d'interventions
     uploaded_file = st.file_uploader("Téléchargez les données d'interventions", type=["xlsx", "xls"])
     if uploaded_file is not None:
         try:
             data = pd.read_excel(uploaded_file)
             with st.expander("🔍 Voir les données importées"):
                 st.dataframe(data, height=300)
-            if st.button("Enregistrer dans la base de données"):
+            if st.button("Enregistrer dans la base de données", key="btn_insert_interventions"):
                 insert_data_to_db(data)
         except Exception as e:
             st.error(f"Erreur lors du chargement du fichier : {e}")
@@ -83,14 +83,25 @@ if selected == "Charger les données":
                 data = pd.read_excel(uploaded_file)
                 with st.expander(f"🔍 Voir les données importées"):
                     st.dataframe(data, height=300)
-                if st.button(f"Enregistrer dans la base de données"):
+                if st.button(f"Enregistrer dans la base de données {file_type}", key=f"btn_insert_{file_type}"):
                     insert_function(data)
             except Exception as e:
                 st.error(f"Erreur lors du chargement du fichier : {e}")
 
-if selected == "Intervention":
+elif selected == "Intervention":
     get_intervention()
+
 elif selected == "Collectes & Commissions":
     afficher_filtre_collecte_commission()
+
 elif selected == "Suivi des ACE & SFI":
     get_suivi_ace_sfi()
+
+elif selected == "Home":
+    st.write("Bienvenue sur la page d'accueil.")
+
+elif selected == "Settings":
+    st.write("Page des paramètres.")
+
+else:
+    st.write("Veuillez sélectionner un menu.")
