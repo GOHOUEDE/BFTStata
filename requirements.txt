@@ -3,4 +3,3 @@ streamlit-option-menu
 pandas
 scikit-learn
 numpy
-mariadb
